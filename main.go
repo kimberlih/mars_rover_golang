@@ -2,33 +2,52 @@
 package main
 
 // We need the fmt library in order to read the user input and to display text in the console.
-import "fmt"
-import "strings"
-import "strconv"
-import "regexp"
+import (
+	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
+)
 
-//Declare the rover struct, this is like a class.
-type rover struct {
-	id 			int
-	startLoc  	string
-	directions 	string
+// Declare the scenario struct, this is the main struct to hold everything.
+type scenario struct {
+	grid   coordinates
+	rovers []rover
 }
+
+// This is the cooirdinates struct, holds X and Y axis number
+type coordinates struct {
+	xAxis int
+	yAxis int
+}
+
+// This is the cooirdinates struct, hold the Rover ID, start position, movement instructions.
+type rover struct {
+	id           int
+	start        position
+	instructions string
+}
+
+// This is the position of the rover at the current time. Consists of an x axis, y axis and cardinal point to create one value.
+type position struct {
+	coordinates   coordinates
+	cardinalPoint string
+}
+
+var (
+	// //The input regex
+	reGrid         string = "test"
+	rePosition     string = "tter"
+	reInstructions string = "^[L|R|M]+$"
+)
 
 // the main() function, this is where all golang projects start(just like most statically typed languages)
 func main() {
-	//variables
-	max_rovers := 5
-
 
 	// Step one, Grab the grid limits.
-	grid_x, grid_y := get_grid();
-	fmt.Println(fmt.Sprintf("X axis: %d", grid_x))
-	fmt.Println(fmt.Sprintf("Y axis: %d", grid_y))
-
-	// Step two, grab the rover count
-	rover_count := get_rover_count(max_rovers);
-	fmt.Println(fmt.Sprintf("Rover count: %d", rover_count))
-
+	gridX, gridY := get_grid()
+	fmt.Println(fmt.Sprintf("X axis: %d", gridX))
+	fmt.Println(fmt.Sprintf("Y axis: %d", gridY))
 
 	// Step three, loop through each rover to collect their starting point and driving instructions
 	var rovers []rover
@@ -60,45 +79,45 @@ func get_grid() (int, int) {
 
 	// Step one, Grab the grid limits.
 	// This is in a for loop so we can retry if invalid inputs are given.
-	for (grid_x == 0 || grid_y == 0){
+	for grid_x == 0 || grid_y == 0 {
 		fmt.Println("Please enter the grid size. Use a comma to seperate the x and y axis eg. '5,6'")
 		var grid_input string //This will hold the input
 		_, err := fmt.Scanln(&grid_input)
-		if (err != nil){
+		if err != nil {
 			fmt.Println(fmt.Sprintf("Input error: %s", err))
 			continue
 		}
 
 		// Check for only one coma and giving relevant error message.
-		if (strings.Count(grid_input,",") < 1){
+		if strings.Count(grid_input, ",") < 1 {
 			fmt.Println(fmt.Sprintf("Input error: missing coma"))
 			continue
-		} else if ((strings.Count(grid_input,",") > 1)){
+		} else if strings.Count(grid_input, ",") > 1 {
 			fmt.Println(fmt.Sprintf("Input error: too many comas"))
 			continue
 		}
 		//validate the inputs are integers above the value of 0
 		split_grid := strings.Split(grid_input, ",")
 		grid_x, err = strconv.Atoi(split_grid[0])
-		if (err != nil){
+		if err != nil {
 			fmt.Println(fmt.Sprintf("Input error: Invalid x axis value"))
 			continue
 		}
 		grid_y, err = strconv.Atoi(split_grid[1])
-		if (err != nil){
+		if err != nil {
 			fmt.Println(fmt.Sprintf("Input error: Invalid y axis value"))
 			continue
 		}
 
 		// check the values are above min
-		if (grid_x <= 0) {
+		if grid_x <= 0 {
 			fmt.Println(fmt.Sprintf("Input error: X axis cannot be less than 1 "))
 			continue
-		} 
-		if (grid_y <= 0) {
+		}
+		if grid_y <= 0 {
 			fmt.Println(fmt.Sprintf("Input error: Y axis cannot be less than 1 "))
 			continue
-		} 
+		}
 
 	}
 	return grid_x, grid_y
@@ -106,27 +125,26 @@ func get_grid() (int, int) {
 
 func get_rover_count(max int) int {
 	var count int
-	for (count == 0){
+	for count == 0 {
 		fmt.Println("Please enter the amount of rovers you are deploying")
 		var rover_input string //This will hold the input
 		_, err := fmt.Scanln(&rover_input)
-		if (err != nil){
+		if err != nil {
 			fmt.Println(fmt.Sprintf("Input error: %s", err))
 			continue
 		}
 
 		tcount, err := strconv.Atoi(rover_input)
-		if (err != nil){
+		if err != nil {
 			fmt.Println(fmt.Sprintf("Input error: Invalid value, must be numeric"))
 			continue
 		}
 
-		if (tcount > max){
+		if tcount > max {
 			fmt.Println(fmt.Sprintf("Input error: Invalid value, must be small or equal to 5"))
 		}
 		count = tcount
 	}
-	
 
 	return count
 }
@@ -136,32 +154,32 @@ func get_start_loc(id, grid_x_limit, grid_y_limit int) string {
 	var start_input string //This will hold the input
 
 	// This is in a for loop so we can retry if invalid inputs are given.
-	for (!valid){
+	for !valid {
 		fmt.Println(fmt.Sprintf("Please enter the starting location for Rover #%d", id))
 
 		_, err := fmt.Scanln(&start_input)
-		if (err != nil){
+		if err != nil {
 			fmt.Println(fmt.Sprintf("Input error: %s", err))
 			continue
 		}
 
 		// Check for 2 comas and give relevant error message.
-		if (!comma_count_valid(2, start_input)){
+		if !comma_count_valid(2, start_input) {
 			continue
 		}
 		//validate the inputs are integers above the value of 0
 		split_input := strings.Split(start_input, ",")
 
 		// check the values are within range
-		if (!intMinMaxValid(split_input[0], 0, grid_x_limit, "X axis")){
+		if !intMinMaxValid(split_input[0], 0, grid_x_limit, "X axis") {
 			continue
 		}
 
-		if (!intMinMaxValid(split_input[1], 0, grid_y_limit, "Y axis")){
+		if !intMinMaxValid(split_input[1], 0, grid_y_limit, "Y axis") {
 			continue
 		}
 
-		if (!stringInSlice( split_input[2],  []string{"N", "E", "S", "W"} )) {
+		if !stringInSlice(split_input[2], []string{"N", "E", "S", "W"}) {
 			fmt.Println(fmt.Sprintf("Input error: Invalid cardinal direction given"))
 			continue
 		}
@@ -175,18 +193,18 @@ func get_directions(id int) string {
 	var direction_input string //This will hold the input
 
 	// This is in a for loop so we can retry if invalid inputs are given.
-	for (!valid){
+	for !valid {
 		fmt.Println(fmt.Sprintf("Please enter the instructions for navigating Rover #%d", id))
 
 		_, err := fmt.Scanln(&direction_input)
-		if (err != nil){
+		if err != nil {
 			fmt.Println(fmt.Sprintf("Input error: %s", err))
 			continue
 		}
 
 		// re := regexp.MustCompile(`(?m)^[L|R|M]+$`)
 		valid, err = regexp.MatchString("^[L|R|M]+$", direction_input)
-		if (err != nil || !valid) {
+		if err != nil || !valid {
 			fmt.Println(fmt.Sprintf("Invalid format, only 'L', 'R', and 'M' are accepted"))
 			continue
 		}
@@ -197,8 +215,8 @@ func get_directions(id int) string {
 //  ---- Tiny Helper methods ----
 // These methods are used on multiple locations or are very basic methods to keep things clean.
 
-func comma_count_valid(expected int, input_string string) bool{
-	if (strings.Count(input_string,",") != expected){
+func comma_count_valid(expected int, input_string string) bool {
+	if strings.Count(input_string, ",") != expected {
 		fmt.Println(fmt.Sprintf("Input error: invalid coma count, expected %d", expected))
 		return false
 	}
@@ -207,27 +225,26 @@ func comma_count_valid(expected int, input_string string) bool{
 
 // method to see if a string is inside a slice.
 func stringInSlice(a string, list []string) bool {
-    for _, b := range list {
-        if b == a {
-            return true
-        }
-    }
-    return false
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }
 
-func intMinMaxValid(num string, min, max int, item string) bool{
+func intMinMaxValid(num string, min, max int, item string) bool {
 	inum, err := strconv.Atoi(num)
-	if (err != nil){
+	if err != nil {
 		fmt.Println(fmt.Sprintf("Input error: Invalid %s value", item))
 	}
-	if (inum < min) {
+	if inum < min {
 		fmt.Println(fmt.Sprintf("Input error: %s cannot be less than %d ", item, min))
 		return false
-	} 
-	if (inum > max) {
+	}
+	if inum > max {
 		fmt.Println(fmt.Sprintf("Input error: %s cannot be more than %d ", item, max))
 		return false
-	} 
+	}
 	return true
 }
-

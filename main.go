@@ -52,15 +52,15 @@ func main() {
 	// Step three, loop through each rover to collect their starting point and driving instructions
 	var rovers []rover
 
-	for i := 1; i < (rover_count + 1); i++ {
+	for i := 1; i < (4 + 1); i++ {
 		// Step 3.1 get the start location
-		temp_start_loc := get_start_loc(i, grid_x, grid_y)
+		temp_start_loc := get_start_loc(i, gridX, gridY)
 		fmt.Println(fmt.Sprintf("Rover #%d start coordinates: %s", i, temp_start_loc))
 		// Step 3.2 get the instructions
 		temp_directions := get_directions(i)
 		fmt.Println(fmt.Sprintf("Rover #%d instructions: %s", i, temp_directions))
 
-		t_rover := rover{id: i, startLoc: temp_start_loc, directions: temp_directions}
+		t_rover := rover{id: i, instructions: temp_directions}
 		rovers = append(rovers, t_rover)
 	}
 
@@ -74,12 +74,12 @@ func main() {
 }
 
 func get_grid() (int, int) {
-	var grid_x int
-	var grid_y int
+	var gridX int
+	var gridY int
 
 	// Step one, Grab the grid limits.
 	// This is in a for loop so we can retry if invalid inputs are given.
-	for grid_x == 0 || grid_y == 0 {
+	for gridX == 0 || gridY == 0 {
 		fmt.Println("Please enter the grid size. Use a comma to seperate the x and y axis eg. '5,6'")
 		var grid_input string //This will hold the input
 		_, err := fmt.Scanln(&grid_input)
@@ -98,29 +98,29 @@ func get_grid() (int, int) {
 		}
 		//validate the inputs are integers above the value of 0
 		split_grid := strings.Split(grid_input, ",")
-		grid_x, err = strconv.Atoi(split_grid[0])
+		gridX, err = strconv.Atoi(split_grid[0])
 		if err != nil {
 			fmt.Println(fmt.Sprintf("Input error: Invalid x axis value"))
 			continue
 		}
-		grid_y, err = strconv.Atoi(split_grid[1])
+		gridY, err = strconv.Atoi(split_grid[1])
 		if err != nil {
 			fmt.Println(fmt.Sprintf("Input error: Invalid y axis value"))
 			continue
 		}
 
 		// check the values are above min
-		if grid_x <= 0 {
+		if gridX <= 0 {
 			fmt.Println(fmt.Sprintf("Input error: X axis cannot be less than 1 "))
 			continue
 		}
-		if grid_y <= 0 {
+		if gridY <= 0 {
 			fmt.Println(fmt.Sprintf("Input error: Y axis cannot be less than 1 "))
 			continue
 		}
 
 	}
-	return grid_x, grid_y
+	return gridX, gridY
 }
 
 func get_rover_count(max int) int {
@@ -149,7 +149,7 @@ func get_rover_count(max int) int {
 	return count
 }
 
-func get_start_loc(id, grid_x_limit, grid_y_limit int) string {
+func get_start_loc(id, gridX_limit, gridY_limit int) string {
 	var valid bool
 	var start_input string //This will hold the input
 
@@ -171,11 +171,11 @@ func get_start_loc(id, grid_x_limit, grid_y_limit int) string {
 		split_input := strings.Split(start_input, ",")
 
 		// check the values are within range
-		if !intMinMaxValid(split_input[0], 0, grid_x_limit, "X axis") {
+		if !intMinMaxValid(split_input[0], 0, gridX_limit, "X axis") {
 			continue
 		}
 
-		if !intMinMaxValid(split_input[1], 0, grid_y_limit, "Y axis") {
+		if !intMinMaxValid(split_input[1], 0, gridY_limit, "Y axis") {
 			continue
 		}
 

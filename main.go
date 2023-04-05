@@ -1,5 +1,5 @@
-// Package main for the package containing the main() function
-package main
+// // Package main for the package containing the main() function
+// package main
 
 // We need the fmt library in order to read the user input and to display text in the console.
 import (
@@ -36,9 +36,10 @@ type position struct {
 
 var (
 	// //The input regex
-	reGrid         string = "test"
-	rePosition     string = "tter"
-	reInstructions string = "^[L|R|M]+$"
+	reGrid         string   = "test"
+	rePosition     string   = "tter"
+	reInstructions string   = "^[L|R|M]+$"
+	cardinalPoint  []string = []string{"N", "E", "S", "W"}
 )
 
 // the main() function, this is where all golang projects start(just like most statically typed languages)
